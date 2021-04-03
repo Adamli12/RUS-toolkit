@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>user interface</title>
+    <script src="jquery-3.3.1.min.js"></script>
+</head>
+<body id = "body" style="min-width: 150px;">
+<div id="login">
+    <label for="username">username</label>
+    <input id="username" name="username">
+    <br/>
+    <label for="psw">password</label>
+    <input id="psw" name="psw" type="password">
+    <br/>
+    <br/>
+    <button id="bt2" style="width: 90%;">login</button>
+    <br/>
+    <br/>
+    <button id="bt1" style="width: 90%;">new user signup</button>
+    <br/>
+    <br/>
+    <button id="bt4" style="width: 90%;">go to user homepage</button>
+    <p id="failMsg1" hidden style="color:red">none existing username</p>
+
+    <p id="failMsg2" hidden style="color:red">incorrect password</p>
+
+    <p id="failMsg3" hidden style="color:red">request faild, please retry after refreshing this page</p>
+</div>
+<div id="logged">
+    <button id="bt8" style="width: 90%;">go to user homepage</button>
+    <br/>
+    <br/>
+    <button id="historyBt" style="width: 90%;">select record to upload</button>
+    <br/>
+    <br/>
+    <button id="bt6" style="width: 90%;">signout</button>
+</div>
+<div id="history">
+    <p id='historyp'></p>
+    <button id="uploadBt">upload</button>
+    <button id="deleteBt">delete</button>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
