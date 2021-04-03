@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %} query partition {% endblock %}
+{% block content_title %} query partition {% endblock %}
+{% block content %}
+    <div class="row text-center">
+        <h3>
+            query partition
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-xs-offset-1 col-xs-5">
+            <div class="col-xs-12 list_header">
+                not grouped query
+            </div>
+                <label for="unpartition_queries">not grouped queries can be grouped or deleted(deleted queries will not be recorded)</label>
+            <div class="col-xs-12">
+                <div id="partition-btn" class="col-xs-6 submit-btn btn btn-block btn-lg btn-primary">
+                    query partition
+                </div>
+                <div id="delete-btn" class="col-xs-6 submit-btn btn btn-block btn-lg btn-primary">
+                    delete query
+                </div>
+            </div>
+            <form class="col-xs-12" id="unpartition-form" action="" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="partition">
+                {% for query, pages in unpartition_queries_to_pages %}
+                    <div class="checkbox col-xs-12 list_row">
+                        <label><input type="checkbox" name="unpartition_checkbox"
+                                      value="{{ query.id }}">{{ query.query_string }}</label>
+                        <ul>
+                            {% for page in pages %}
+                                <li>page id: {{ page.page_id }}<a href="/task/show_page/{{ page.id }}" target="_blank">(click to show)</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </form>
+        </div>
+        <div class="col-xs-5">
+            <div class="col-xs-12 list_header">
+                grouped queries
+            </div>
+                <label for="partition_queries">selected grouped queries can be ungrouped</label>
+            <div class="col-xs-12">
+                <div id="unpartition-btn" class="col-xs-6 submit-btn btn btn-block btn-lg btn-primary">
+                    ungroup
+                </div>
+            </div>
+            <form class="col-xs-12" id="partition-form" action="" method="post" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="unpartition">
+                {% for task_id, queries in partition_tasks_to_queries %}
+                    <div class="checkbox col-xs-12 list_row">
+                        <label class="col-xs-12"><input type="checkbox" name="partition_checkbox" value="{{ task_id }}">task {{ task_id }}</label>
+                        <ul>
+                            {% for query in queries %}
+                                <li class="col-xs-12">{{ query.query_string }}</li>
+                            {% endfor %}
+                        </ul>
+                        <a href="/task/task_annotation1/{{ task_id }}" class="col-xs-12">click here to annotate this task</a>
+                    </div>
+
+                {% endfor %}
+            </form>
+        </div>
+        <script>
+            $(function () {
+                $('#partition-btn').click(
+                        function () {
+                            $("input[name='action_type']").val("partition");
+                            $('#unpartition-form').submit();
+                        }
+                );
+                $('#delete-btn').click(
+                        function () {
+                            if (confirm("are you sure to delete these queries? you cannot retrieve deleted queries.")) {
+                                $("input[name='action_type']").val("delete");
+                                $('#unpartition-form').submit();
+                            }
+                        }
+                );
+                $('#unpartition-btn').click(
+                        function () {
+                            if (confirm("are you sure to ungroup these tasks?")) {
+                                $('#partition-form').submit();
+                            }
+                        }
+                );
+            });
+        </script>
+    </div>
+
+{% endblock %}

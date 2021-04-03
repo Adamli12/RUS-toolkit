@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %} feedback of queries {% endblock %}
+{% block content_title %} feedback of queries {% endblock %}
+{% block content %}
+    <div class="row text-center">
+        <h3>
+            please fill in the feedback of each queries
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-xs-offset-1 col-xs-10">
+            <form class="col-xs-12" id="query-form" action="" method="post" enctype='multipart/form-data'>
+                {% csrf_token %}
+                {% for query, prequery, query_annotation, pages_and_status in items_list %}
+                    <div class="col-xs-12" style="border:1px dashed #000; border-radius:10px">
+                        <div class="col-xs-12 list_header list_row">
+                            query: {{ query.query_string }}
+                            <ul>
+                                {% for page, status in pages_and_status %}
+                                    <li>page {{ page.page_id }}<a href="/task/show_page/{{ page.id }}"
+                                                               target="_blank">(click to show)</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <label for="goal_text" class="text col-xs-12 list_row"><b>1.
+                            please describe the information you intend to achieve from the query(e.g. I wanted to know ...)</b></label>
+
+                        <div class="text col-xs-12 list_row">
+                            <label><textarea name="goal_text_{{ query.id }}" class="form-control login-field" rows="3"
+                                             cols="100"
+                                             placeholder="please describe the information you intend to achieve from the query">{{ query_annotation.goal }}</textarea></label>
+                        </div>
+                        <br/>
+                        <label for="relation_ratio" class="ratio col-xs-12 list_row"><b>2. this query B <span
+                                style="color: #c00">("{{ query.query_string }}")</span>and the last query A <span
+                                style="color: #c00">("{{ prequery.query_string }}")</span>has the relationship of</b></label>
+
+                        <div class="ratio col-xs-12 list_row">
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="0"/> initial query</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="1"/>
+                                same target, reforming of words</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="2"/>
+                                same target, add requirements</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="3"/>
+                                same target, reduce requirements</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="4"/>
+                                B is a subtarget derived by A</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="5"/>
+                                no direct relationship but under the same general goal</label>
+                            <br/>
+                            <label><input type="radio" name="relation_ratio_{{ query.id }}" value="6"/>
+                                no direct relationship but B was generated in the search of A</label>
+                        </div>
+                        <script>
+                            $("input:radio[name='relation_ratio_{{ query.id }}'][value='{{ query_annotation.relation }}']").attr('checked', 'true');
+                        </script>
+                        <label for="satisfaction_ratio"
+                               class="ratio col-xs-12 list_row"><b>3. the satisfactory score under this query, 0 is very bad, 4 is very good</b></label>
+
+                        <div class="ratio col-xs-12 list_row">
+                            <label><input type="radio" name="satisfaction_ratio_{{ query.id }}" value="0"/> 0 </label>
+                            <label><input type="radio" name="satisfaction_ratio_{{ query.id }}" value="1"/> 1 </label>
+                            <label><input type="radio" name="satisfaction_ratio_{{ query.id }}" value="2"/> 2 </label>
+                            <label><input type="radio" name="satisfaction_ratio_{{ query.id }}" value="3"/> 3 </label>
+                            <label><input type="radio" name="satisfaction_ratio_{{ query.id }}" value="4"/> 4 </label>
+                        </div>
+                        <script>
+                            $("input:radio[name='satisfaction_ratio_{{ query.id }}'][value='{{ query_annotation.satisfaction }}']").attr('checked', 'true');
+                        </script>
+                        <label for="ending_ratio" class="ratio col-xs-12 list_row"><b>4. The reason you ended the searching process?</b></label>
+
+                        <div class="ratio col-xs-12 list_row">
+                            <label><input type="radio" name="ending_ratio_{{ query.id }}" value="3"/>
+                                I have acquired the intended information</label>
+                            <br/>
+                            <label><input type="radio" name="ending_ratio_{{ query.id }}" value="2"/>
+                                I came up with a better query</label>
+                            <br/>
+                            <label><input type="radio" name="ending_ratio_{{ query.id }}" value="1"/> I cannot find the intended information</label>
+                            <br/>
+                            <label><input type="radio" name="ending_ratio_{{ query.id }}" value="0"/> others <input
+                                    type="text" name="ending_text_{{ query.id }}"
+                                    value="{{ query_annotation.other_reason }}" placeholder="please enter the other reasons"
+                                    size="50"/></label>
+                        </div>
+                        <script>
+                            $("input:radio[name='ending_ratio_{{ query.id }}'][value='{{ query_annotation.ending_type }}']").attr('checked', 'true');
+                        </script>
+                        <label for="result_annotation" class="result col-xs-12 list_row"><b>5.
+                            please click the following links to annotate the usefulness of every search results in these pages<br />
+                            (you can drag the useful results to the right, clicked results are highlighted)</b></label>
+
+                        <div class="col-xs-12 list_row">
+                            query: {{ query.query_string }}
+                            <ul>
+                                {% for page, status in pages_and_status %}
+                                    <li>page {{ page.page_id }}<a class="check_link"
+                                                               href="/task/page_annotation/{{ page.id }}"
+                                                               target="_blank">(click to annotate)</a>
+                                        {% if status %}
+                                            <img class="check_img" src="/static/img/check.jpg"
+                                                 style="visibility: visible; width: 20px; height: 20px">
+                                        {% else %}
+                                            <img class="check_img" src="/static/img/check.jpg"
+                                                 style="visibility: hidden; width: 20px; height: 20px">
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <script>
+                                $('.check_link').click(
+                                        function () {
+                                            var node = $(this).get(0);
+                                            var parent_node = node.parentNode;
+                                            if (parent_node != null) {
+                                                $(parent_node).find("img").css("visibility", "visible");
+                                            }
+                                        }
+                                )
+                            </script>
+                        </div>
+                    </div>
+                    <div class="col-xs-12"><br/></div>
+                {% endfor %}
+            </form>
+            <div class="col-xs-12">
+                <div id="query-btn" class="col-xs-6 submit-btn btn btn-block btn-lg btn-primary">
+                    submit annotation
+                </div>
+            </div>
+        </div>
+        <script>
+            $(function () {
+                $('#query-btn').click(
+                        function () {
+                            {% for query, prequery, query_annotation, pages_and_status in items_list %}
+                                var goal = $("[name='goal_text_{{ query.id }}']");
+                                var relation = $("[name='relation_ratio_{{ query.id }}']:checked");
+                                var satisfaction = $("[name='satisfaction_ratio_{{ query.id }}']:checked");
+                                var ending = $("[name='ending_ratio_{{ query.id }}']:checked");
+                                if (goal.val() == '') {
+                                    alert('intended information cannot be empty!');
+                                    goal.focus();
+                                    return
+                                }
+                                if (relation.val() == null) {
+                                    alert('please choose a relationship!');
+                                    $("[name='relation_ratio_{{ query.id }}']").focus();
+                                    return
+                                }
+                                if (satisfaction.val() == null) {
+                                    alert('please choose a score!');
+                                    $("[name='satisfaction_ratio_{{ query.id }}']").focus();
+                                    return
+                                }
+                                if (ending.val() == null) {
+                                    alert('please choose a reason!');
+                                    $("[name='ending_ratio_{{ query.id }}']").focus();
+                                    return
+                                }
+                            {% endfor %}
+                            if (confirm("confirm to submit all feedback of queries?"))
+                                $('#query-form').submit();
+                        }
+                );
+            });
+        </script>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %} task annotation {% endblock %}
+{% block content_title %} task annotation {% endblock %}
+{% block content %}
+    {% if not flag %}
+    <script>
+        alert('你有之前的浏览页面的结果有用性忘了标注,请检查!');
+        window.location.href = '/task/query_annotation/{{ task.id }}';
+    </script>
+    {% endif %}
+    <div class="row text-center">
+        <h3>
+            task annotation
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-xs-offset-1 col-xs-10">
+            <div class="col-xs-12 list_header">
+                query under this task
+            </div>
+            {% for query, pages in queries_to_pages %}
+                <div class="col-xs-12 list_row">
+                    <label>{{ query.query_string }}</label>
+                    <ul>
+                        {% for page in pages %}
+                            <li>page {{ page.page_id }}<a href="/task/show_page/{{ page.id }}" target="_blank">(click to show)</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+            <div class="col-xs-12"><br /></div>
+            <div class="col-xs-12 list_header">
+                task annotation
+            </div>
+            <form class="col-xs-12" id="task-form" action="" method="post" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <label for="satisfaction_ratio" class="ratio col-xs-12 list_row"><b>1. please give the satisfactory score throughout the seraching task, 0 is very bad, 4 is very good</b></label>
+                <div class="ratio col-xs-12 list_row">
+                    <label><input type="radio" name="satisfaction_ratio"  value="0" /> 0 </label>
+                    <label><input type="radio" name="satisfaction_ratio"  value="1" /> 1 </label>
+                    <label><input type="radio" name="satisfaction_ratio"  value="2" /> 2 </label>
+                    <label><input type="radio" name="satisfaction_ratio"  value="3" /> 3 </label>
+                    <label><input type="radio" name="satisfaction_ratio"  value="4" /> 4 </label>
+                </div>
+                <script>
+                    $("input:radio[name='satisfaction_ratio'][value='{{ task.satisfaction }}']").attr('checked','true');
+                </script>
+                <div class="col-xs-12"><br /></div>
+                <label for="ending_ratio" class="ratio col-xs-12 list_row"><b>2. How do you think the seraching task is completed?</b></label>
+                <div class="ratio col-xs-12 list_row">
+                    <label><input type="radio" name="ending_ratio"  value="4" /> I have gained information out of my exception</label>
+                        <br />
+                    <label><input type="radio" name="ending_ratio"  value="3" /> I have gained information of my exception</label>
+                        <br />
+                    <label><input type="radio" name="ending_ratio"  value="2" /> I have gained part of the information I expected</label>
+                        <br />
+                    <label><input type="radio" name="ending_ratio"  value="1" /> I have not gained any information I expected</label>
+                        <br />
+                    <label><input type="radio" name="ending_ratio"  value="0" /> others <input
+                                    type="text" name="ending_text_{{ task.id }}" value="" placeholder="please enter the reason"
+                                    size="50"/>{{ task.other_reason }}</label>
+                </div>
+                <script>
+                    $("input:radio[name='ending_ratio'][value='{{ task_annotation.ending_type }}']").attr('checked','true');
+                </script>
+                <div class="col-xs-12"><br /></div>
+                <label for="information_ratio" class="ratio col-xs-12 list_row"><b>3. do you think that it is difficult to achieve the answer of this searching task?</b></label>
+                <div class="ratio col-xs-12 list_row">
+                    <label><input type="radio" name="information_ratio"  value="0" /> 0 </label>
+                    <label><input type="radio" name="information_ratio"  value="1" /> 1 </label>
+                    <label><input type="radio" name="information_ratio"  value="2" /> 2 </label>
+                    <label><input type="radio" name="information_ratio"  value="3" /> 3 </label>
+                    <label><input type="radio" name="information_ratio"  value="4" /> 4 </label>
+                </div>
+                <script>
+                    $("input:radio[name='information_ratio'][value='{{ task_annotation.information_difficulty }}']").attr('checked','true');
+                </script>
+                <div class="col-xs-12"><br /></div>
+                <label for="query_ratio" class="ratio col-xs-12 list_row"><b>4. do you think that it is difficult to form a clear query for this task?</b></label>
+                <div class="ratio col-xs-12 list_row">
+                    <label><input type="radio" name="query_ratio"  value="0" /> 0 </label>
+                    <label><input type="radio" name="query_ratio"  value="1" /> 1 </label>
+                    <label><input type="radio" name="query_ratio"  value="2" /> 2 </label>
+                    <label><input type="radio" name="query_ratio"  value="3" /> 3 </label>
+                    <label><input type="radio" name="query_ratio"  value="4" /> 4 </label>
+                </div>
+                <script>
+                    $("input:radio[name='query_ratio'][value='{{ task_annotation.query_difficulty }}']").attr('checked','true');
+                </script>
+                <div class="col-xs-12"><br /></div>
+                <label for="experience_ratio" class="ratio col-xs-12 list_row"><b>5. How would you comment on the whole searching process?(0 is very bad, 4 is very good)</b></label>
+                <div class="ratio col-xs-12 list_row">
+                    <label><input type="radio" name="experience_ratio"  value="0" /> 0 </label>
+                    <label><input type="radio" name="experience_ratio"  value="1" /> 1 </label>
+                    <label><input type="radio" name="experience_ratio"  value="2" /> 2 </label>
+                    <label><input type="radio" name="experience_ratio"  value="3" /> 3 </label>
+                    <label><input type="radio" name="experience_ratio"  value="4" /> 4 </label>
+                </div>
+                <script>
+                    $("input:radio[name='experience_ratio'][value='{{ task_annotation.experience_difficulty }}']").attr('checked','true');
+                </script>
+                <div class="col-xs-12"><br /></div>
+            </form>
+            <div class="col-xs-12">
+                <div id="task-btn" class="col-xs-6 submit-btn btn btn-block btn-lg btn-primary">
+                    submit annotation
+                </div>
+            </div>
+        </div>
+    <script>
+        $(function() {
+            $('#task-btn').click(
+                function () {
+                    var satisfaction = $("[name='satisfaction_ratio']:checked");
+                    var ending = $("[name='ending_ratio']:checked");
+                    var information = $("[name='information_ratio']:checked");
+                    var query = $("[name='query_ratio']:checked");
+                    var experience = $("[name='experience_ratio']:checked");
+                    if (satisfaction.val() == null) {
+                        alert('please select a satisfacory score!');
+                        $("[name='satisfaction_ratio']").focus();
+                        return
+                    }
+                    if (ending.val() == null) {
+                        alert('please select a reason!');
+                        $("[name='ending_ratio']").focus();
+                        return
+                    }
+                    if (information.val() == null) {
+                        alert('please select a score of difficulty!');
+                        $("[name='information_ratio']").focus();
+                        return
+                    }
+                    if (query.val() == null) {
+                        alert('please select a score of difficulty!');
+                        $("[name='query_ratio']").focus();
+                        return
+                    }
+                    if (experience.val() == null) {
+                        alert('please select a general score of satisfaction!');
+                        $("[name='experience_ratio']").focus();
+                        return
+                    }
+                    if (confirm("confirm to submit task annotation?"))
+                        $('#task-form').submit();
+                }
+            );
+        });
+    </script>
+    </div>
+
+{% endblock %}

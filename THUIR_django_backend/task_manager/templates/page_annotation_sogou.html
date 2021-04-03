@@ -1,0 +1,118 @@
+{{ html | safe }}
+<script>
+    var content_left = $("div.results").children("div");
+    var sponsors = $(".sponsored");
+    for (var i = 0; i < sponsors.length; i++) {
+        sponsors[i].remove();
+    }
+    var content_right = $("#right");
+    content_right.empty();
+    content_right.append("<div style='width: 540px'><b>(提示: 页面左边是搜索结果,请将你认为在搜索过程中对你有帮助的结果按照其有用性拖动至右边的相应位置;对于你没有看过的结果或者你认为对你完全没有帮助的结果,可以不用拖动. 为了帮助你更好地回忆搜索过程,我们将你点击过的结果在该结果的下方标注了出来,但这并不意味着你必须拖动它)</b></div><br />");
+    for (var i = 4; i > 0; i--) {
+        var usefulness = "";
+        switch (i) {
+            case 4:
+                usefulness = "<div class='usefulness' id=usefulness_4 style='height: auto; width: 540px; border:1px dashed #000; border-radius:10px' draggable='true'>请将你认为非常有帮助的结果拖到此处</div><br /><br />";
+                break;
+            case 3:
+                usefulness = "<div class='usefulness' id=usefulness_3 style='height: auto; width: 540px; border:1px dashed #000; border-radius:10px' draggable='true'>请将你认为有较大帮助的结果拖到此处</div><br /><br />";
+                break;
+            case 2:
+                usefulness = "<div class='usefulness' id=usefulness_2 style='height: auto; width: 540px; border:1px dashed #000; border-radius:10px' draggable='true'>请将你认为有部分帮助的结果拖到此处</div><br /><br />";
+                break;
+            case 1:
+                usefulness = "<div class='usefulness' id=usefulness_1 style='height: auto; width: 540px; border:1px dashed #000; border-radius:10px' draggable='true'>请将你认为有一点帮助的结果拖到此处</div><br /><br />";
+                break;
+            default:
+                break;
+        }
+        content_right.append(usefulness);
+    }
+    content_right.append("<div class='col-xs-12'><div id='page-btn' class='col-xs-6' style='border: 1px solid transparent;border-radius: 10px;font-size: 13px;padding: 6px 12px;text-align: center;color: #fff;background-color: #1abc9c;border-color: #1abc9c'>提交标注</div></div>");
+
+    var dragElement = null;
+    for (var i = 0; i < content_left.length; i++) {
+        content_left[i].setAttribute("draggable", true);
+        content_left[i].setAttribute("id", (i + 1) + "");
+        content_left[i].addEventListener('dragstart', function (ev) {
+            dragElement = this;
+        }, false);
+
+        content_left[i].addEventListener('dragenter', function (ev) {
+            if (dragElement != this) {
+                this.parentNode.insertBefore(dragElement, this);
+            }
+        }, false);
+
+        content_left[i].addEventListener('dragleave', function (ev) {
+            if (dragElement != this) {
+                if (this == this.parentNode.lastElementChild || this == this.parentNode.lastChild) {
+                    this.parentNode.appendChild(dragElement);
+                }
+            }
+        }, false);
+    }
+
+    var usefulness_divs = $("div.usefulness");
+    for (var i = 0; i < usefulness_divs.length; i++) {
+        usefulness_divs[i].addEventListener('dragenter', function (ev) {
+            if (dragElement != this && $(this).children().length == 0) {
+                this.appendChild(dragElement);
+            }
+        }, false);
+    }
+
+    {% for id in clicked_ids %}
+        var click_result = $("#" +{{ id }});
+        click_result.append("<h3><mark>注意: 你在搜索时曾经点击过上面这个结果</mark></h3>");
+    {% endfor %}
+
+    $('#page-btn').click(
+            function () {
+                if (confirm("确认提交页面结果有用性标注?")) {
+                    var message = "";
+
+                    var usefulness_0 = new Array();
+                    $("div.results").children("div").each(function (id, element) {
+                        var result_id = $(element).attr("id");
+                        usefulness_0.push(result_id);
+                    });
+                    message += usefulness_0.join();
+                    for (var score = 1; score < 5; score++) {
+                        var usefulness = new Array();
+                        $("#usefulness_" + score).children("div").each(function (id, element) {
+                            var result_id = $(element).attr("id");
+                            usefulness.push(result_id);
+                        });
+                        message += "\t" + usefulness.join();
+                    }
+
+                    var host = window.location.hostname;
+                    var port = window.location.port;
+                    var submit_url = "http://" + host + ":" + port + "/task/page_annotation_submit/" + {{ page_id }} +"/";
+                    {#                            var submit_url = "http://127.0.0.1:8000/task/page_annotation_submit/3/";#}
+                    $.ajax({
+                        type: 'POST',
+                        dataType: "text",
+                        url: submit_url,
+                        data: {message: message},
+                        async: false,
+                        success: function (data, textStatus) {
+                            console.log(data);
+                            window.close();
+                        },
+                        error: function () {
+                            console.log('error');
+                        }
+                    });
+                }
+            }
+    );
+
+    document.ondragover = function (e) {
+        e.preventDefault();
+    };
+    document.ondrop = function (e) {
+        e.preventDefault();
+    };
+</script>
